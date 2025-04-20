@@ -9,6 +9,7 @@ This project analyzes movie ratings from the MovieLens dataset to uncover trends
 - Average ratings by genre.
 - Top 10 most common user-generated tags.
 - Tags associated with top-rated movies.
+- Clustering of movies based on user tags using K-means.
 
 ## Setup
 
@@ -38,3 +39,4 @@ RESULTS:
 - Top Movies.
 - Genre Ratings
 - Top Tags.
+- Tag Clusters.

@@ -1,6 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 
 def load_data(movies_path, ratings_path, links_path, tags_path):
@@ -81,6 +84,50 @@ def plot_top_tags(tags):
     plt.close()
 
 
+def plot_tag_clusters(tags, movies):
+    """Cluster movies based on tags and visualize."""
+    # Create tag profiles
+    tag_profiles = (
+        tags.groupby("movieId")["tag"]
+        .apply(lambda x: " ".join(x.str.lower()))
+        .reset_index()
+    )
+    tag_profiles = pd.merge(
+        tag_profiles, movies[["movieId", "title"]], on="movieId", how="left"
+    )
+
+    # Convert tags to TF-IDF features
+    vectorizer = TfidfVectorizer(max_features=100, stop_words="english")
+    tfidf_matrix = vectorizer.fit_transform(tag_profiles["tag"])
+
+    # Apply K-means clustering
+    n_clusters = 5
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    tag_profiles["cluster"] = kmeans.fit_predict(tfidf_matrix)
+
+    # Reduce dimensions for visualization
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(tfidf_matrix.toarray())
+    tag_profiles["pca1"] = pca_result[:, 0]
+    tag_profiles["pca2"] = pca_result[:, 1]
+
+    # Plot clusters
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(
+        x="pca1",
+        y="pca2",
+        hue="cluster",
+        palette="deep",
+        data=tag_profiles,
+        legend="full",
+    )
+    plt.title("Movie Clusters Based on Tags (PCA)")
+    plt.xlabel("PCA Component 1")
+    plt.ylabel("PCA Component 2")
+    plt.savefig("../figures/tag_clusters.png")
+    plt.close()
+
+
 if __name__ == "__main__":
     # Set plot style
     sns.set(style="whitegrid")
@@ -98,3 +145,4 @@ if __name__ == "__main__":
     plot_top_movies(df)
     plot_genre_ratings(df)
     plot_top_tags(tags)
+    plot_tag_clusters(tags, df[["movieId", "title"]])
