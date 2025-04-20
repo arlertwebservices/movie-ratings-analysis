@@ -15,7 +15,7 @@ This project analyzes movie ratings from the MovieLens dataset to uncover trends
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/movie-ratings-analysis.git
+   git clone https://github.com/mnservices/movie-ratings-analysis.git
 
    ```
 
